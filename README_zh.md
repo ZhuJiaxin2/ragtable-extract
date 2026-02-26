@@ -27,7 +27,7 @@
 ## 安装
 
 ```bash
-pip install ragtable-extract
+pip install ragtable-extract -i https://pypi.org/simple
 ```
 
 或从源码安装：
