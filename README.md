@@ -61,6 +61,28 @@ for t in tables:
 python -m ragtable_extract document.pdf output.html
 ```
 
+## Web Quick Test (app.py)
+
+Run the Flask web app to upload PDFs and preview extraction results in the browser:
+
+```bash
+pip install flask
+python app.py
+```
+
+Then open http://localhost:1965 to upload a PDF and view extracted tables.
+
+## Test Results
+
+Run `python test.py` to generate extraction results. Output files:
+
+| Source PDF | Extraction Result |
+|------------|-------------------|
+| [test/example/zhejiang.pdf](test/example/zhejiang.pdf) | [test/result/test_adaptive_zhejiang.html](test/result/test_adaptive_zhejiang.html) |
+| [test/example/changsha.pdf](test/example/changsha.pdf) | [test/result/test_adaptive_changsha.html](test/result/test_adaptive_changsha.html) |
+| [test/example/shaanxi.pdf](test/example/shaanxi.pdf) | [test/result/test_adaptive_shaanxi.html](test/result/test_adaptive_shaanxi.html) |
+| [test/example/tongbao.pdf](test/example/tongbao.pdf) | [test/result/test_adaptive_tongbao.html](test/result/test_adaptive_tongbao.html) |
+
 ## API
 
 | Function | Description |

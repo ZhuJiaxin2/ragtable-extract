@@ -61,6 +61,28 @@ for t in tables:
 python -m ragtable_extract document.pdf output.html
 ```
 
+## 网页快速测试（app.py）
+
+运行 Flask  Web 服务，在浏览器中上传 PDF 并预览提取结果：
+
+```bash
+pip install flask
+python app.py
+```
+
+然后访问 http://localhost:1965 上传 PDF 并查看表格提取结果。
+
+## 测试结果
+
+运行 `python test.py` 生成提取结果。输出文件：
+
+| 源文件 | 读取结果 |
+|--------|----------|
+| [test/example/zhejiang.pdf](test/example/zhejiang.pdf) | [test/result/test_adaptive_zhejiang.html](test/result/test_adaptive_zhejiang.html) |
+| [test/example/changsha.pdf](test/example/changsha.pdf) | [test/result/test_adaptive_changsha.html](test/result/test_adaptive_changsha.html) |
+| [test/example/shaanxi.pdf](test/example/shaanxi.pdf) | [test/result/test_adaptive_shaanxi.html](test/result/test_adaptive_shaanxi.html) |
+| [test/example/tongbao.pdf](test/example/tongbao.pdf) | [test/result/test_adaptive_tongbao.html](test/result/test_adaptive_tongbao.html) |
+
 ## API
 
 | 函数 | 说明 |
