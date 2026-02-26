@@ -27,7 +27,7 @@ A lightweight Python library that extracts tables from PDFs and converts them to
 ## Installation
 
 ```bash
-pip install ragtable-extract
+pip install ragtable-extract -i https://pypi.org/simple
 ```
 
 Or from source:
