@@ -1,0 +1,34 @@
+# Byte-compiled
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution
+*.egg-info/
+*.egg
+dist/
+build/
+*.whl
+
+# Virtual env
+.venv/
+venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Test comparison
+comparison_output/
+test_comparison.py
+
+# PDFs (optional: uncomment if you don't want to commit sample PDFs)
+# *.pdf
+
+# OS
+.DS_Store
+Thumbs.db

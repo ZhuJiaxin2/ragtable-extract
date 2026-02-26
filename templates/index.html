@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF 表格提取</title>
+  <style>
+    :root {
+      --bg: #0f0f12;
+      --surface: #1a1a1f;
+      --border: #2a2a32;
+      --text: #e8e8ed;
+      --muted: #888;
+      --accent: #6b8afd;
+      --accent-hover: #7d9aff;
+      --success: #4ade80;
+      --error: #f87171;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "SF Pro Text", "PingFang SC", "Microsoft YaHei", sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin: 0 0 8px 0;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 32px;
+    }
+    .upload-zone {
+      background: var(--surface);
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      margin-bottom: 24px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .upload-zone.dragover { border-color: var(--accent); background: rgba(107, 138, 253, 0.06); }
+    .upload-zone input[type="file"] { display: none; }
+    .upload-zone label {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 24px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+    .upload-zone label:hover { background: var(--accent-hover); }
+    .file-name {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .file-name.has-file { color: var(--success); }
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.2s, background 0.2s;
+    }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover:not(:disabled) { background: var(--border); }
+    .btn-secondary:disabled { display: none; }
+    .status {
+      min-height: 24px;
+      margin-bottom: 24px;
+      font-size: 0.9rem;
+    }
+    .status.loading { color: var(--muted); }
+    .status.error { color: var(--error); }
+    .status.success { color: var(--success); }
+    .result {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .result-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .result-header h2 { margin: 0; font-size: 1rem; font-weight: 600; }
+    .result-body {
+      padding: 20px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    .result-body .table-wrap {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+    .result-body .table-wrap:last-child { margin-bottom: 0; }
+    .result-body .table-wrap h3 {
+      margin: 0 0 12px 0;
+      font-size: 0.9rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .result-body table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 13px;
+    }
+    .result-body td, .result-body th {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    .result-body td { background: var(--surface); }
+    .result-body tr:nth-child(even) td { background: #222228; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>PDF 表格提取</h1>
+    <p class="subtitle">上传 PDF，自动识别表格并导出为 HTML，支持合并单元格与符号修正。</p>
+
+    <div class="upload-zone" id="uploadZone">
+      <input type="file" id="fileInput" accept=".pdf" />
+      <label for="fileInput">选择 PDF 文件</label>
+      <div class="file-name" id="fileName">未选择文件</div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn btn-primary" id="btnExtract" disabled>提取表格</button>
+      <button type="button" class="btn btn-secondary" id="btnDownload" disabled>下载 HTML</button>
+    </div>
+
+    <div class="status" id="status"></div>
+
+    <div class="result" id="result" style="display: none;">
+      <div class="result-header">
+        <h2 id="resultTitle">提取结果</h2>
+      </div>
+      <div class="result-body" id="resultBody"></div>
+    </div>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById("fileInput");
+    const fileName = document.getElementById("fileName");
+    const uploadZone = document.getElementById("uploadZone");
+    const btnExtract = document.getElementById("btnExtract");
+    const btnDownload = document.getElementById("btnDownload");
+    const status = document.getElementById("status");
+    const result = document.getElementById("result");
+    const resultBody = document.getElementById("resultBody");
+    const resultTitle = document.getElementById("resultTitle");
+
+    let lastResult = { fullHtml: "", filename: "", tables: [] };
+
+    uploadZone.addEventListener("dragover", (e) => { e.preventDefault(); uploadZone.classList.add("dragover"); });
+    uploadZone.addEventListener("dragleave", () => uploadZone.classList.remove("dragover"));
+    uploadZone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      uploadZone.classList.remove("dragover");
+      const files = e.dataTransfer.files;
+      if (files.length && files[0].type === "application/pdf") {
+        fileInput.files = files;
+        setFileName(files[0].name);
+      }
+    });
+
+    fileInput.addEventListener("change", () => {
+      if (fileInput.files.length) setFileName(fileInput.files[0].name);
+      else setFileName("");
+    });
+
+    function setFileName(name) {
+      fileName.textContent = name || "未选择文件";
+      fileName.classList.toggle("has-file", !!name);
+      btnExtract.disabled = !name;
+    }
+
+    function setStatus(msg, type = "") {
+      status.textContent = msg;
+      status.className = "status " + type;
+    }
+
+    btnExtract.addEventListener("click", async () => {
+      if (!fileInput.files.length) return;
+      const form = new FormData();
+      form.append("file", fileInput.files[0]);
+      btnExtract.disabled = true;
+      setStatus("正在提取表格…", "loading");
+
+      try {
+        const res = await fetch("/api/extract", {
+          method: "POST",
+          body: form,
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          setStatus(data.error || "提取失败", "error");
+          result.style.display = "none";
+          return;
+        }
+
+        lastResult = data;
+        setStatus(`共提取 ${data.tables.length} 个表格`, "success");
+        resultTitle.textContent = `提取结果 · ${data.tables.length} 个表格`;
+        resultBody.innerHTML = data.tables
+          .map((t, i) => `<div class="table-wrap"><h3>表格 ${i + 1}（第 ${t.page} 页）</h3>${t.html}</div>`)
+          .join("");
+        result.style.display = "block";
+        btnDownload.disabled = !data.fullHtml;
+      } catch (e) {
+        setStatus("网络错误：" + e.message, "error");
+        result.style.display = "none";
+      } finally {
+        btnExtract.disabled = false;
+      }
+    });
+
+    btnDownload.addEventListener("click", () => {
+      if (!lastResult.fullHtml) return;
+      const name = (lastResult.filename || "tables").replace(/\.pdf$/i, "") + "_表格.html";
+      const blob = new Blob([lastResult.fullHtml], { type: "text/html;charset=utf-8" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+  </script>
+</body>
+</html>

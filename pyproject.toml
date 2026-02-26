@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ragtable-extract"
+version = "0.1.0"
+description = "PDF Parsing for RAG — extracting tables precisely. Convert to HTML. Fast, local, no GPU."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.8"
+authors = [{ name = "ragtable-extract" }]
+keywords = ["pdf", "table", "html", "rag", "llm", "extraction"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Text Processing :: Markup :: HTML",
+]
+dependencies = [
+    "pdfplumber>=0.10.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
+
+[project.urls]
+Homepage = "https://github.com/ZhuJiaxin2/ragtable-extract"
+Repository = "https://github.com/ZhuJiaxin2/ragtable-extract"
+Documentation = "https://github.com/ZhuJiaxin2/ragtable-extract#readme"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ragtable_extract*"]
